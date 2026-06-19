@@ -127,4 +127,4 @@ The V2 roadmap includes LLM integration for ambiguous commit classification. Whe
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+By contributing, you agree that your contributions will be dual-licensed under the MIT License and the GNU General Public License v3, and that contributors retain copyright of their own contributions.

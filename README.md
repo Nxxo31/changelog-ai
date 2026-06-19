@@ -184,4 +184,8 @@ changelog-ai/
 
 ## License
 
-MIT — see [PROJECT.md](PROJECT.md) for full product specification.
+**Dual licensed** under:
+- **MIT License** — see [LICENSE](LICENSE)
+- **GNU General Public License v3** — see [COPYING](COPYING)
+
+The MIT license governs permissive use. The GNU GPL v3 applies the additional requirement that derivative works distributed in executable form must also be distributed under GPL v3.
