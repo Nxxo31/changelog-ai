@@ -40,7 +40,7 @@ export function classifyCommit(commit: CommitInfo): ClassifiedChange {
   const match = commit.message.match(CONVENTIONAL_REGEX);
 
   if (match?.groups) {
-    const { type, scope, breaking, description } = match.groups;
+    const { type, scope, breaking } = match.groups;
     const cleanType = type.toLowerCase().trim();
 
     // Combine subject + body for full breaking change detection

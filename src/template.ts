@@ -1,4 +1,4 @@
-import { ClassifiedChange, ChangeType, Severity } from './classifier';
+import { ClassifiedChange, ChangeType } from './classifier';
 
 export interface ChangelogOptions {
   title?: string;
@@ -100,13 +100,7 @@ export function generateChangelog(
   previousVersion?: string,
   options: ChangelogOptions = {}
 ): string {
-  const {
-    title = 'Changelog',
-    description,
-    showAuthor = false,
-    showScope = false,
-    dateFormat = 'YYYY-MM-DD'
-  } = options;
+  const { title = 'Changelog', description } = options;
 
   const today = new Date().toISOString().split('T')[0];
   const groups = groupByType(changes);

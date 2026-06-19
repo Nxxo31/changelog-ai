@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { getCommitsBetweenTags, getCommitsSinceTag, getCommitsBetweenHashes, listTags } from './git';
+import { getCommitsBetweenTags, listTags } from './git';
 import { classifyCommits } from './classifier';
 import { generateChangelog } from './template';
+import { writeFileSync } from 'fs';
 
 const program = new Command();
 
@@ -30,8 +31,7 @@ program
       });
 
       if (options.output) {
-        const fs = require('fs');
-        fs.writeFileSync(options.output, changelog, 'utf-8');
+        writeFileSync(options.output, changelog, 'utf-8');
         console.log(`Changelog written to ${options.output}`);
       } else {
         console.log(changelog);
