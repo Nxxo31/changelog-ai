@@ -1,6 +1,8 @@
 # Examples
 
-This document shows real-world usage scenarios for changelog-ai.
+> Real-world usage scenarios for changelog-ai. Each example is tested against the current codebase.
+
+---
 
 ## Basic Usage
 
@@ -46,6 +48,8 @@ changelog-ai generate v1.5.0 HEAD
 changelog-ai generate v0.1.0 v0.2.0 -o CHANGELOG.md
 ```
 
+---
+
 ## Advanced Options
 
 ### Include commit author
@@ -81,6 +85,27 @@ Output includes the scope from Conventional Commits:
 changelog-ai generate v1.0.0 v2.0.0 --author --scope -o RELEASE.md
 ```
 
+---
+
+## Conventional Commits Examples
+
+The following table shows how each commit message type is classified and where it appears in the output:
+
+| Commit message | Changelog section | Severity |
+|---|---|---|
+| `feat: add user registration` | Added | Minor |
+| `fix(auth): correct token expiry` | Fixed | Patch |
+| `feat(payments)!: new Stripe integration` | ⚠ BREAKING CHANGES | Major |
+| `fix!: remove deprecated /v1/users` | ⚠ BREAKING CHANGES | Major |
+| `perf(api): cache responses` | Changed | Minor |
+| `refactor: simplify auth flow` | Changed | Patch |
+| `docs: update API documentation` | Changed | Patch |
+| `fix: resolve null pointer`<br>`BREAKING CHANGE: config format changed` | ⚠ BREAKING CHANGES | Major |
+| `test: add integration tests` | Other | Patch |
+| `chore: update dependencies` | Other | Patch |
+
+---
+
 ## CI/CD Integration
 
 ### GitHub Actions (manual trigger)
@@ -104,7 +129,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Required for tag access
 
       - uses: actions/setup-node@v4
         with:
@@ -120,11 +145,11 @@ jobs:
       - name: Upload changelog
         uses: actions/upload-artifact@v4
         with:
-          name: changelog
+          name: changelog-${{ github.event.inputs.to_tag }}
           path: CHANGELOG.md
 ```
 
-### GitHub Actions (on release)
+### GitHub Actions (on release tag)
 
 ```yaml
 name: Changelog on Release
@@ -200,20 +225,7 @@ changelog-ai generate v1.1.0 v1.2.0 -o CHANGELOG.md
 # 4. Review and publish
 ```
 
-## Conventional Commits Examples
-
-For best results, write commit messages following the Conventional Commits spec:
-
-| Commit message | Classification |
-|----------------|----------------|
-| `feat: add user registration` | Added |
-| `fix(auth): correct token expiry` | Fixed |
-| `feat(payments)!: new Stripe integration` | ⚠ BREAKING CHANGES |
-| `fix!: remove deprecated /v1/users` | ⚠ BREAKING CHANGES |
-| `perf(api): cache responses` | Changed |
-| `refactor: simplify auth flow` | Changed |
-| `docs: update API documentation` | Changed |
-| `fix: resolve null pointer\n\nBREAKING CHANGE: config format changed` | ⚠ BREAKING CHANGES |
+---
 
 ## Troubleshooting
 
@@ -222,20 +234,46 @@ For best results, write commit messages following the Conventional Commits spec:
 If `generate` returns an empty changelog:
 
 1. Verify the tags exist: `changelog-ai tags`
-2. Check the range: `git log v1.0.0..v1.1.0 --oneline`
-3. Ensure tags are on the same branch
+2. Check the range directly: `git log v1.0.0..v1.1.0 --oneline`
+3. Ensure both tags are on the same branch
+4. In CI, ensure full history is fetched: `fetch-depth: 0` in checkout action
 
 ### Tag not found
 
 ```bash
-Error: Command failed: git log v99.0.0..HEAD...
 fatal: ambiguous argument 'v99.0.0': unknown revision
 ```
 
 Verify the tag exists: `git tag -l` or `changelog-ai tags`
 
-### Merge commits included
+### Permission denied
 
-Use `--no-merges` flag by default (already configured). If you need merges:
+```bash
+# After npm link, ensure the binary is executable:
+chmod +x dist/cli.js
+npm link
+```
 
-Modify `src/git.ts` and remove `--no-merges` from the git command.
+### Empty changelog despite commits
+
+If the changelog is generated but shows no entries:
+
+1. Check that commits follow Conventional Commits format
+2. Verify the range is correct: `git log <from>..<to> --oneline`
+3. Confirm the tags are ordered correctly (older → newer, not vice versa)
+
+### Build errors after pulling changes
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+### Linting errors after merging
+
+```bash
+npm run lint -- --fix  # Auto-fix safe issues
+```
+
+Review the remaining output for issues that require manual fixes.
