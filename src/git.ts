@@ -33,19 +33,21 @@ function buildGitLogArgs(range: string): string {
 
 /**
  * Parse raw git log output (single string with record separators) into CommitInfo array.
+ * Format per record: %H¹%an¹%ad¹%s\n%b
+ * Since author (%an) can contain spaces, we only split the header by ¹ and split header by first \n for body.
  */
 function parseGitLog(raw: string): CommitInfo[] {
   if (!raw) return [];
 
   return raw.split(RECORD_SEP)
     .map(record => {
-      // Each record: hash|author|date|subject\nbody
-      const firstLineEnd = record.indexOf('\n');
-      const headerPart = firstLineEnd >= 0 ? record.substring(0, firstLineEnd) : record;
-      const bodyPart = firstLineEnd >= 0 ? record.substring(firstLineEnd + 1) : '';
+      // Split header from body: header is everything before first \n, body is after
+      const firstNewline = record.indexOf('\n');
+      const headerPart = firstNewline >= 0 ? record.substring(0, firstNewline) : record;
+      const bodyPart = firstNewline >= 0 ? record.substring(firstNewline + 1) : '';
 
       const parts = headerPart.split('¹');
-      if (parts.length < 3) return null;
+      if (parts.length < 4) return null;
 
       return {
         hash: parts[0] || '',
